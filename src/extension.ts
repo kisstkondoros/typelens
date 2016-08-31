@@ -45,7 +45,7 @@ export function activate(context: vscode.ExtensionContext) {
             return names.map(name => {
                 var start = document.positionAt(name.getStart());
                 var end = document.positionAt(name.getEnd());
-                return new MethodReferenceLens(new vscode.Range(start, start), document.uri);
+                return new MethodReferenceLens(new vscode.Range(start, end), document.uri);
             });
         }
         resolveCodeLens(codeLens: CodeLens, token: CancellationToken): CodeLens | Thenable<CodeLens> {
@@ -62,7 +62,6 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
     }
-
     context.subscriptions.push(vscode.languages.registerCodeLensProvider(['typescript'], new TSCodeLensProvider()));
 }
 
