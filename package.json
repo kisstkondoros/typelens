@@ -41,6 +41,11 @@
           "description": "A flag which indicates whether the initiating reference should be excluded",
           "type": "boolean"
         },
+        "typelens.decorateunused": {
+          "default": true,
+          "description": "A flag which indicates whether the initiating reference should be decorated if it is unsed",
+          "type": "boolean"
+        },
         "typelens.singular": {
           "default": "{0} reference",
           "description": "Localization for the singular case",
@@ -54,6 +59,11 @@
         "typelens.noreferences": {
           "default": "no references found",
           "description": "Localization for the case when there are no references found",
+          "type": "string"
+        },
+        "typelens.unusedcolor": {
+          "default": "#999",
+          "description": "Color for unused references",
           "type": "string"
         }
       }

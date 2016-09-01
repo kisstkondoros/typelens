@@ -12,6 +12,8 @@ export function activate(context: vscode.ExtensionContext) {
         public singular: string = "{0} reference";
         public plural: string = "{0} references";
         public noreferences: string = "no references found";
+        public unusedcolor: string = "#999";
+        public decorateunused: boolean = true;
     }
 
     class AppConfiguration {
@@ -53,6 +55,11 @@ export function activate(context: vscode.ExtensionContext) {
 
     class TSCodeLensProvider implements CodeLensProvider {
         private config: AppConfiguration;
+
+        private decoration: vscode.TextEditorDecorationType;
+
+        private unusedDecoration: vscode.Range[] = [];
+
         constructor() {
             this.config = new AppConfiguration();
         }
@@ -62,6 +69,19 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         provideCodeLenses(document: TextDocument, token: CancellationToken): CodeLens[] | Thenable<CodeLens[]> {
+            var settings = this.config.settings;
+            if (this.unusedDecoration.length > 0 && this.decoration) {
+                vscode.window.activeTextEditor.setDecorations(this.decoration, this.unusedDecoration);
+                this.decoration.dispose();
+                this.decoration = null;
+                this.unusedDecoration = [];
+            }
+            if (settings.decorateunused) {
+                this.decoration = vscode.window.createTextEditorDecorationType({
+                    color: settings.unusedcolor
+                });
+            }
+
             var sourceFile = this.getSourceFile(document);
             const names: ts.Node[] = [];
             const walk = (node: ts.Node) => {
@@ -89,7 +109,6 @@ export function activate(context: vscode.ExtensionContext) {
         }
         resolveCodeLens(codeLens: CodeLens, token: CancellationToken): CodeLens | Thenable<CodeLens> {
             if (codeLens instanceof MethodReferenceLens) {
-
                 return commands.executeCommand<Location[]>('vscode.executeReferenceProvider', codeLens.uri, codeLens.range.start).then(locations => {
                     var settings = this.config.settings;
                     var filteredLocations = locations;
@@ -115,6 +134,10 @@ export function activate(context: vscode.ExtensionContext) {
                             arguments: [codeLens.uri, codeLens.range.start, filteredLocations],
                         });
                     } else {
+                        if (settings.decorateunused && this.decoration) {
+                            this.unusedDecoration.push(codeLens.range);
+                            vscode.window.activeTextEditor.setDecorations(this.decoration, this.unusedDecoration);
+                        }
                         return new CodeLens(codeLens.range, {
                             command: "editor.action.findReferences",
                             title: message,
