@@ -31,6 +31,34 @@
     "compile": "node ./node_modules/vscode/bin/compile -watch -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "TypeLens configuration",
+      "properties": {
+        "typelens.exludeself": {
+          "default": true,
+          "description": "A flag which indicates whether the initiating reference should be excluded",
+          "type": "boolean"
+        },
+        "typelens.singular": {
+          "default": "{0} reference",
+          "description": "Localization for the singular case",
+          "type": "string"
+        },
+        "typelens.plural": {
+          "default": "{0} references",
+          "description": "Localization for the plural case",
+          "type": "string"
+        },
+        "typelens.noreferences": {
+          "default": "no references found",
+          "description": "Localization for the case when there are no references found",
+          "type": "string"
+        }
+      }
+    }
+  },
   "devDependencies": {
     "vscode": "^0.11.0"
   },
