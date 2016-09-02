@@ -148,7 +148,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
     }
-    context.subscriptions.push(vscode.languages.registerCodeLensProvider(['typescript'], new TSCodeLensProvider()));
+    context.subscriptions.push(vscode.languages.registerCodeLensProvider(['typescript', 'typescriptreact'], new TSCodeLensProvider()));
 }
 
 
