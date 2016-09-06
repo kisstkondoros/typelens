@@ -1,12 +1,20 @@
-///<reference path="../typings/vscode-typings.d.ts" />
 'use strict';
 import * as vscode from 'vscode';
-import * as ts from 'typescript';
+
 import * as fs from 'fs';
 import * as path from 'path';
-import {CodeLensProvider, TextDocument, CancellationToken, CodeLens, Range, Command, Location, commands} from 'vscode';
+import {CodeLensProvider, SymbolInformation, SymbolKind, TextDocument, CancellationToken, CodeLens, Range, Command, Location, commands} from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
+    const standardSymbolKindSet = [SymbolKind.Method, SymbolKind.Function, SymbolKind.Property, SymbolKind.Class, SymbolKind.Interface, SymbolKind.Module, SymbolKind.Variable];
+    const cssSymbolKindSet = [SymbolKind.Method, SymbolKind.Function, SymbolKind.Property, SymbolKind.Variable];
+
+    const SymbolKindInterst = {
+        'scss': cssSymbolKindSet,
+        'less': cssSymbolKindSet,
+        'ts': standardSymbolKindSet,
+        'js': standardSymbolKindSet,
+    }
     class TypeLensConfiguration {
         public exludeself: boolean = true;
         public singular: string = "{0} reference";
@@ -64,10 +72,6 @@ export function activate(context: vscode.ExtensionContext) {
             this.config = new AppConfiguration();
         }
 
-        private getSourceFile(document: vscode.TextDocument) {
-            return ts.createSourceFile(document.fileName, document.getText(), ts.ScriptTarget.Latest, true);
-        }
-
         provideCodeLenses(document: TextDocument, token: CancellationToken): CodeLens[] | Thenable<CodeLens[]> {
             var settings = this.config.settings;
             if (this.unusedDecoration.length > 0 && this.decoration) {
@@ -82,29 +86,28 @@ export function activate(context: vscode.ExtensionContext) {
                 });
             }
 
-            var sourceFile = this.getSourceFile(document);
-            const names: ts.Node[] = [];
-            const walk = (node: ts.Node) => {
-                switch (node.kind) {
-                    case ts.SyntaxKind.ClassDeclaration:
-                    case ts.SyntaxKind.ModuleDeclaration:
-                    case ts.SyntaxKind.EnumDeclaration:
-                    case ts.SyntaxKind.FunctionDeclaration:
-                    case ts.SyntaxKind.MethodDeclaration:
-                        if ((<ts.ClassLikeDeclaration>node).name) {
-                            names.push((<ts.ClassLikeDeclaration>node).name);
+            return commands.executeCommand<SymbolInformation[]>('vscode.executeDocumentSymbolProvider', document.uri).then(symbolInformations => {
+                return symbolInformations.filter(symbolInformation => {
+                    var knownInterest: SymbolKind[] = <SymbolKind[]>SymbolKindInterst[document.languageId];
+                    if (!knownInterest) {
+                        knownInterest = standardSymbolKindSet;
+                    }
+                    return knownInterest.indexOf(symbolInformation.kind) > -1;
+                }).map(symbolInformation => {
+                    var range = symbolInformation.location.range;
+                    if (!range.isSingleLine) {
+                        var line = document.lineAt(range.start.line);
+                        var index = line.text.indexOf(symbolInformation.name);
+                        if (index == -1) {
+                            index = line.firstNonWhitespaceCharacterIndex;
+                            range = new Range(range.start, range.start);
+                        } else {
+                            range = new Range(range.start.line, index, range.start.line, index + symbolInformation.name.length);
                         }
-                        break;
-                }
-                node.getChildren().forEach(walk);
-            }
+                    }
 
-            walk(sourceFile);
-
-            return names.map(name => {
-                var start = document.positionAt(name.getStart());
-                var end = document.positionAt(name.getEnd());
-                return new MethodReferenceLens(new vscode.Range(start, end), document.uri);
+                    return new MethodReferenceLens(new vscode.Range(range.start, range.end), document.uri);
+                });
             });
         }
         resolveCodeLens(codeLens: CodeLens, token: CancellationToken): CodeLens | Thenable<CodeLens> {
@@ -127,6 +130,11 @@ export function activate(context: vscode.ExtensionContext) {
                     }
                     message = message.replace('{0}', amount + "");
 
+                    if (amount == 0 && settings.decorateunused && this.decoration) {
+                        this.unusedDecoration.push(codeLens.range);
+                    }
+                    vscode.window.activeTextEditor.setDecorations(this.decoration, this.unusedDecoration);
+
                     if (amount > 0) {
                         return new CodeLens(codeLens.range, {
                             command: 'editor.action.showReferences',
@@ -134,10 +142,6 @@ export function activate(context: vscode.ExtensionContext) {
                             arguments: [codeLens.uri, codeLens.range.start, filteredLocations],
                         });
                     } else {
-                        if (settings.decorateunused && this.decoration) {
-                            this.unusedDecoration.push(codeLens.range);
-                            vscode.window.activeTextEditor.setDecorations(this.decoration, this.unusedDecoration);
-                        }
                         return new CodeLens(codeLens.range, {
                             command: "editor.action.findReferences",
                             title: message,
@@ -148,7 +152,5 @@ export function activate(context: vscode.ExtensionContext) {
             }
         }
     }
-    context.subscriptions.push(vscode.languages.registerCodeLensProvider(['typescript', 'typescriptreact'], new TSCodeLensProvider()));
+    context.subscriptions.push(vscode.languages.registerCodeLensProvider(['*'], new TSCodeLensProvider()));
 }
-
-
