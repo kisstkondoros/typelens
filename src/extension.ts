@@ -6,7 +6,7 @@ import * as path from 'path';
 import {CodeLensProvider, SymbolInformation, SymbolKind, TextDocument, CancellationToken, CodeLens, Range, Command, Location, commands} from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
-    const standardSymbolKindSet = [SymbolKind.Method, SymbolKind.Function, SymbolKind.Property, SymbolKind.Class, SymbolKind.Interface, SymbolKind.Module, SymbolKind.Variable];
+    const standardSymbolKindSet = [SymbolKind.Method, SymbolKind.Function, SymbolKind.Property, SymbolKind.Class, SymbolKind.Interface, SymbolKind.Module];
     const cssSymbolKindSet = [SymbolKind.Method, SymbolKind.Function, SymbolKind.Property, SymbolKind.Variable];
 
     const SymbolKindInterst = {
