@@ -95,15 +95,13 @@ export function activate(context: vscode.ExtensionContext) {
                     return knownInterest.indexOf(symbolInformation.kind) > -1;
                 }).map(symbolInformation => {
                     var range = symbolInformation.location.range;
-                    if (!range.isSingleLine) {
-                        var line = document.lineAt(range.start.line);
-                        var index = line.text.indexOf(symbolInformation.name);
-                        if (index == -1) {
-                            index = line.firstNonWhitespaceCharacterIndex;
-                            range = new Range(range.start, range.start);
-                        } else {
-                            range = new Range(range.start.line, index, range.start.line, index + symbolInformation.name.length);
-                        }
+                    var line = document.lineAt(range.start.line);
+                    var index = line.text.lastIndexOf(symbolInformation.name);
+                    if (index == -1) {
+                        index = line.firstNonWhitespaceCharacterIndex;
+                        range = new Range(range.start, range.start);
+                    } else {
+                        range = new Range(range.start.line, index, range.start.line, index + symbolInformation.name.length);
                     }
 
                     return new MethodReferenceLens(new vscode.Range(range.start, range.end), document.uri);
