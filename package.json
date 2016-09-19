@@ -59,7 +59,7 @@
           "type": "string"
         },
         "typelens.noreferences": {
-          "default": "no references found",
+          "default": "no references found for {0}",
           "description": "Localization for the case when there are no references found",
           "type": "string"
         },
