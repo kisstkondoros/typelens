@@ -106,17 +106,20 @@ export function activate(context: vscode.ExtensionContext) {
                         lineIndex++;
                     } while (lineIndex < symbolInformation.location.range.end.line)
 
-                    if (index == -1) {
+                    if (symbolInformation.name == '<function>') {
+                        range = null;
+                    } else if (index == -1) {
+                        var line = document.lineAt(symbolInformation.location.range.start.line);
                         index = line.firstNonWhitespaceCharacterIndex;
                         lineIndex = range.start.line;
                         range = new Range(lineIndex, index, lineIndex, 90000);
-                    }
-                    else {
+                    } else {
                         range = new Range(lineIndex, index, lineIndex, index + symbolInformation.name.length);
                     }
-
-                    return new MethodReferenceLens(new vscode.Range(range.start, range.end), document.uri);
-                });
+                    if (range) {
+                        return new MethodReferenceLens(new vscode.Range(range.start, range.end), document.uri);
+                    }
+                }).filter(item => item != null);
             });
         }
         resolveCodeLens(codeLens: CodeLens, token: CancellationToken): CodeLens | Thenable<CodeLens> {
