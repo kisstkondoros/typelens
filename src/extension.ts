@@ -61,30 +61,46 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }
 
+    class UnusedDecoration {
+        ranges: vscode.Range[] = [];
+        decoration: vscode.TextEditorDecorationType;
+    }
+
     class TSCodeLensProvider implements CodeLensProvider {
         private config: AppConfiguration;
 
-        private decoration: vscode.TextEditorDecorationType;
-
-        private unusedDecoration: vscode.Range[] = [];
+        private unusedDecorations: Map<string, UnusedDecoration> = new Map<string, UnusedDecoration>();
 
         constructor() {
             this.config = new AppConfiguration();
         }
 
+        reinitDecorations() {
+            var settings = this.config.settings;
+            var editor = vscode.window.activeTextEditor;
+            if (editor != null) {
+                if (this.unusedDecorations.has(editor.document.uri.fsPath)) {
+                    var unusedDecoration: UnusedDecoration = this.unusedDecorations.get(editor.document.uri.fsPath);
+                    var decoration = unusedDecoration.decoration;
+                    if (unusedDecoration.ranges.length > 0 && decoration) {
+                        editor.setDecorations(decoration, unusedDecoration.ranges);
+                    }
+                    decoration.dispose();
+                    decoration = null;
+                }
+
+                if (settings.decorateunused) {
+                    var unusedDecoration = new UnusedDecoration();
+                    this.unusedDecorations.set(editor.document.uri.fsPath, unusedDecoration);
+                    unusedDecoration.decoration = vscode.window.createTextEditorDecorationType({
+                        color: settings.unusedcolor
+                    });
+                }
+            }
+        }
         provideCodeLenses(document: TextDocument, token: CancellationToken): CodeLens[] | Thenable<CodeLens[]> {
             var settings = this.config.settings;
-            if (this.unusedDecoration.length > 0 && this.decoration) {
-                this.unusedDecoration = [];
-                vscode.window.activeTextEditor.setDecorations(this.decoration, this.unusedDecoration);
-                this.decoration.dispose();
-                this.decoration = null;
-            }
-            if (settings.decorateunused) {
-                this.decoration = vscode.window.createTextEditorDecorationType({
-                    color: settings.unusedcolor
-                });
-            }
+            this.reinitDecorations();
 
             return commands.executeCommand<SymbolInformation[]>('vscode.executeDocumentSymbolProvider', document.uri).then(symbolInformations => {
                 var usedPositions = [];
@@ -150,12 +166,12 @@ export function activate(context: vscode.ExtensionContext) {
                         message = message.replace('{0}', amount + "");
                     }
 
-                    if (amount == 0 && settings.decorateunused && this.decoration) {
-                        this.unusedDecoration.push(codeLens.range);
-                    }
-
-                    if (isSameDocument) {
-                        vscode.window.activeTextEditor.setDecorations(this.decoration, this.unusedDecoration);
+                    if (amount == 0 && isSameDocument && settings.decorateunused) {
+                        if (this.unusedDecorations.has(codeLens.uri.fsPath)) {
+                            var decorationsForFile = this.unusedDecorations.get(codeLens.uri.fsPath);
+                            decorationsForFile.ranges.push(codeLens.range);
+                            this.updateDecorations(codeLens.uri);
+                        }
                     }
 
                     if (amount > 0) {
@@ -174,6 +190,21 @@ export function activate(context: vscode.ExtensionContext) {
                 });
             }
         }
+        updateDecorations(uri: vscode.Uri) {
+            var isSameDocument = (uri == vscode.window.activeTextEditor.document.uri);
+            if (isSameDocument) {
+                if (this.unusedDecorations.has(uri.fsPath)) {
+                    var unusedDecoration = this.unusedDecorations.get(uri.fsPath);
+                    var decoration = unusedDecoration.decoration;
+                    var unusedDecorations = unusedDecoration.ranges;
+                    vscode.window.activeTextEditor.setDecorations(decoration, unusedDecorations);
+                }
+            }
+        }
     }
-    context.subscriptions.push(vscode.languages.registerCodeLensProvider(['*'], new TSCodeLensProvider()));
+    const provider = new TSCodeLensProvider();
+    context.subscriptions.push(vscode.languages.registerCodeLensProvider(['*'], provider));
+    context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
+        provider.updateDecorations(editor.document.uri);
+    }))
 }
