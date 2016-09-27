@@ -87,6 +87,7 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             return commands.executeCommand<SymbolInformation[]>('vscode.executeDocumentSymbolProvider', document.uri).then(symbolInformations => {
+                var usedPositions = [];
                 return symbolInformations.filter(symbolInformation => {
                     var knownInterest: SymbolKind[] = <SymbolKind[]>SymbolKindInterst[document.languageId];
                     if (!knownInterest) {
@@ -117,7 +118,11 @@ export function activate(context: vscode.ExtensionContext) {
                         range = new Range(lineIndex, index, lineIndex, index + symbolInformation.name.length);
                     }
                     if (range) {
-                        return new MethodReferenceLens(new vscode.Range(range.start, range.end), document.uri);
+                        var position = document.offsetAt(range.start);
+                        if (!usedPositions[position]) {
+                            usedPositions[position] = 1;
+                            return new MethodReferenceLens(new vscode.Range(range.start, range.end), document.uri);
+                        }
                     }
                 }).filter(item => item != null);
             });
