@@ -121,7 +121,7 @@ export function activate(context: vscode.ExtensionContext) {
                             break;
                         }
                         lineIndex++;
-                    } while (lineIndex < symbolInformation.location.range.end.line)
+                    } while (lineIndex <= symbolInformation.location.range.end.line)
 
                     if (symbolInformation.name == '<function>') {
                         range = null;
