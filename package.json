@@ -48,6 +48,11 @@
           "description": "A flag which indicates whether the initiating reference should be decorated if it is unsed",
           "type": "boolean"
         },
+         "typelens.skiplanguages": {
+          "default": ["csharp"],
+          "description": "Languages where the references should not be shown",
+          "type": "array"
+        },
         "typelens.singular": {
           "default": "{0} reference",
           "description": "Localization for the singular case",

@@ -22,6 +22,7 @@ export function activate(context: vscode.ExtensionContext) {
         public noreferences: string = "no references found for {0}";
         public unusedcolor: string = "#999";
         public decorateunused: boolean = true;
+        public skiplanguages: string[] = ["csharp"];
     }
 
     class AppConfiguration {
@@ -100,6 +101,9 @@ export function activate(context: vscode.ExtensionContext) {
         }
         provideCodeLenses(document: TextDocument, token: CancellationToken): CodeLens[] | Thenable<CodeLens[]> {
             var settings = this.config.settings;
+            if (settings.skiplanguages.indexOf(document.languageId) > -1) {
+                return;
+            }
             this.reinitDecorations();
 
             return commands.executeCommand<SymbolInformation[]>('vscode.executeDocumentSymbolProvider', document.uri).then(symbolInformations => {
