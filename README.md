@@ -8,3 +8,20 @@ properly I can't do anything about it (probably).
 
 ## It looks like this:
 ![Example code with references code lens](https://raw.githubusercontent.com/kisstkondoros/typelens/master/screenshot.png)
+
+## Configuration properties
+
+- typelens.exludeself
+  - A flag which indicates whether the initiating reference should be excluded
+- typelens.decorateunused
+  - A flag which indicates whether the initiating reference should be decorated if it is unsed
+- typelens.skiplanguages
+  - Languages where the references should not be shown
+- typelens.singular
+  - Localization for the singular case
+- typelens.plural
+  - Localization for the plural case
+- typelens.noreferences
+  - Localization for the case when there are no references found
+- typelens.unusedcolor
+  - Color for unused references
