@@ -3,7 +3,7 @@
   "displayName": "TypeLens",
   "icon": "logo.png",
   "description": "Shows references to TypeScript methods in the form of codelens",
-  "version": "1.2.4",
+  "version": "1.3.0",
   "publisher": "kisstkondoros",
   "author": "Tamas Kiss",
   "license": "MIT",
@@ -48,8 +48,10 @@
           "description": "A flag which indicates whether the initiating reference should be decorated if it is unsed",
           "type": "boolean"
         },
-         "typelens.skiplanguages": {
-          "default": ["csharp"],
+        "typelens.skiplanguages": {
+          "default": [
+            "csharp"
+          ],
           "description": "Languages where the references should not be shown",
           "type": "array"
         },
