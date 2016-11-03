@@ -209,6 +209,8 @@ export function activate(context: vscode.ExtensionContext) {
     const provider = new TSCodeLensProvider();
     context.subscriptions.push(vscode.languages.registerCodeLensProvider(['*'], provider));
     context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
-        provider.updateDecorations(editor.document.uri);
+        if (editor) {
+            provider.updateDecorations(editor.document.uri);
+        }
     }))
 }
