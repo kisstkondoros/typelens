@@ -101,10 +101,10 @@ export function activate(context: vscode.ExtensionContext) {
         }
         provideCodeLenses(document: TextDocument, token: CancellationToken): CodeLens[] | Thenable<CodeLens[]> {
             var settings = this.config.settings;
+            this.reinitDecorations();
             if (!this.config.typeLensEnabled || settings.skiplanguages.indexOf(document.languageId) > -1) {
                 return;
             }
-            this.reinitDecorations();
 
             return commands.executeCommand<SymbolInformation[]>('vscode.executeDocumentSymbolProvider', document.uri).then(symbolInformations => {
                 var usedPositions = [];
