@@ -34,6 +34,12 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "contributes": {
+     "commands": [
+      {
+        "command": "typelens.toggle",
+        "title": "Toggle TypeLens"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "TypeLens configuration",

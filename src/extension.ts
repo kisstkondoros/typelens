@@ -68,7 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     class TSCodeLensProvider implements CodeLensProvider {
-        private config: AppConfiguration;
+        config: AppConfiguration;
 
         private unusedDecorations: Map<string, UnusedDecoration> = new Map<string, UnusedDecoration>();
 
@@ -101,7 +101,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
         provideCodeLenses(document: TextDocument, token: CancellationToken): CodeLens[] | Thenable<CodeLens[]> {
             var settings = this.config.settings;
-            if (settings.skiplanguages.indexOf(document.languageId) > -1) {
+            if (!this.config.typeLensEnabled || settings.skiplanguages.indexOf(document.languageId) > -1) {
                 return;
             }
             this.reinitDecorations();
@@ -207,8 +207,23 @@ export function activate(context: vscode.ExtensionContext) {
         }
     }
     const provider = new TSCodeLensProvider();
-    context.subscriptions.push(vscode.languages.registerCodeLensProvider(['*'], provider));
-    context.subscriptions.push(vscode.window.onDidChangeActiveTextEditor(editor => {
+    const triggerCodeLensComputation = () => {
+        if (!vscode.window.activeTextEditor)
+            return;
+        var end = vscode.window.activeTextEditor.selection.end;
+        vscode.window.activeTextEditor.edit((editbuilder) => {
+            editbuilder.insert(end, " ");
+        }).then(() => {
+            commands.executeCommand("undo");
+        });
+    };
+    const disposables: vscode.Disposable[] = context.subscriptions;
+    disposables.push(commands.registerCommand("typelens.toggle", () => {
+        provider.config.typeLensEnabled = !provider.config.typeLensEnabled;
+        triggerCodeLensComputation();
+    }));
+    disposables.push(vscode.languages.registerCodeLensProvider(['*'], provider));
+    disposables.push(vscode.window.onDidChangeActiveTextEditor(editor => {
         if (editor) {
             provider.updateDecorations(editor.document.uri);
         }
