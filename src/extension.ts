@@ -19,7 +19,7 @@ export function activate(context: vscode.ExtensionContext) {
     class TypeLensConfiguration {
         public blackbox: string[] = [];
         public blackboxTitle: string = "<< called from blackbox >>"
-        public exludeself: boolean = true;
+        public excludeself: boolean = true;
         public singular: string = "{0} reference";
         public plural: string = "{0} references";
         public noreferences: string = "no references found for {0}";
@@ -155,7 +155,7 @@ export function activate(context: vscode.ExtensionContext) {
                 return commands.executeCommand<Location[]>('vscode.executeReferenceProvider', codeLens.uri, codeLens.range.start).then(locations => {
                     var settings = this.config.settings;
                     var filteredLocations = locations;
-                    if (settings.exludeself) {
+                    if (settings.excludeself) {
                         filteredLocations = locations.filter(location => !location.range.isEqual(codeLens.range));
                     }
 

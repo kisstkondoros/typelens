@@ -15,7 +15,7 @@ properly I can't do anything about it (probably).
   - Localization for the case where the only usages are from blackboxed sources
 - typelens.blackbox
   - Array of glob patterns for blackboxed resources
-- typelens.exludeself
+- typelens.excludeself
   - A flag which indicates whether the initiating reference should be excluded
 - typelens.decorateunused
   - A flag which indicates whether the initiating reference should be decorated if it is unsed
