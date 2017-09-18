@@ -49,6 +49,11 @@
           "description": "A flag which indicates whether the initiating reference should be excluded",
           "type": "boolean"
         },
+        "typelens.blackbox": {
+          "description": "Array of glob patterns for blackboxed resources",
+          "type": "array",
+          "default": []
+        },
         "typelens.decorateunused": {
           "default": true,
           "description": "A flag which indicates whether the initiating reference should be decorated if it is unsed",
@@ -64,6 +69,11 @@
         "typelens.singular": {
           "default": "{0} reference",
           "description": "Localization for the singular case",
+          "type": "string"
+        },
+        "typelens.blackboxTitle": {
+          "default": "<< called from blackbox >>",
+          "description": "Localization for the case where the only usages are from blackboxed sources",
           "type": "string"
         },
         "typelens.plural": {
@@ -86,6 +96,10 @@
   },
   "devDependencies": {
     "vscode": "^0.11.0",
-    "typescript": "^1.8.5"
+    "typescript": "^1.8.5",
+    "@types/minimatch": "^3.0.1"
+  },
+  "dependencies": {
+    "minimatch": "^3.0.4"
   }
 }

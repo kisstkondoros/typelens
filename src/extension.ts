@@ -3,7 +3,8 @@ import * as vscode from 'vscode';
 
 import * as fs from 'fs';
 import * as path from 'path';
-import {CodeLensProvider, SymbolInformation, SymbolKind, TextDocument, CancellationToken, CodeLens, Range, Command, Location, commands} from 'vscode';
+import { CodeLensProvider, SymbolInformation, SymbolKind, TextDocument, CancellationToken, CodeLens, Range, Command, Location, commands } from 'vscode';
+var minimatch = require('minimatch');
 
 export function activate(context: vscode.ExtensionContext) {
     const standardSymbolKindSet = [SymbolKind.Method, SymbolKind.Function, SymbolKind.Property, SymbolKind.Class, SymbolKind.Interface];
@@ -16,6 +17,8 @@ export function activate(context: vscode.ExtensionContext) {
         'js': standardSymbolKindSet,
     }
     class TypeLensConfiguration {
+        public blackbox: string[] = [];
+        public blackboxTitle: string = "<< called from blackbox >>"
         public exludeself: boolean = true;
         public singular: string = "{0} reference";
         public plural: string = "{0} references";
@@ -155,9 +158,18 @@ export function activate(context: vscode.ExtensionContext) {
                     if (settings.exludeself) {
                         filteredLocations = locations.filter(location => !location.range.isEqual(codeLens.range));
                     }
+
+                    const blackboxList = this.config.settings.blackbox || [];
+                    const nonBlackBoxedLocations = filteredLocations.filter(location => {
+                        const fileName = location.uri.path;
+                        return !blackboxList.some(pattern => {
+                            return new minimatch.Minimatch(pattern).match(fileName);
+                        });
+                    });
+
                     var isSameDocument = (codeLens.uri == vscode.window.activeTextEditor.document.uri);
                     var message;
-                    var amount = filteredLocations.length;
+                    var amount = nonBlackBoxedLocations.length;
                     if (amount == 0) {
                         message = settings.noreferences;
                         var name = isSameDocument ? vscode.window.activeTextEditor.document.getText(codeLens.range) : "";
@@ -170,19 +182,23 @@ export function activate(context: vscode.ExtensionContext) {
                         message = message.replace('{0}', amount + "");
                     }
 
-                    if (amount == 0 && isSameDocument && settings.decorateunused) {
+                    if (amount == 0 && filteredLocations.length == 0 && isSameDocument && settings.decorateunused) {
                         if (this.unusedDecorations.has(codeLens.uri.fsPath)) {
                             var decorationsForFile = this.unusedDecorations.get(codeLens.uri.fsPath);
                             decorationsForFile.ranges.push(codeLens.range);
                             this.updateDecorations(codeLens.uri);
                         }
                     }
-
-                    if (amount > 0) {
+                    if (amount == 0 && filteredLocations.length != 0) {
+                        return new CodeLens(new vscode.Range(codeLens.range.start.line, codeLens.range.start.character, codeLens.range.start.line, 90000), {
+                            command: '',
+                            title: settings.blackboxTitle
+                        });
+                    } else if (amount > 0) {
                         return new CodeLens(new vscode.Range(codeLens.range.start.line, codeLens.range.start.character, codeLens.range.start.line, 90000), {
                             command: 'editor.action.showReferences',
                             title: message,
-                            arguments: [codeLens.uri, codeLens.range.start, filteredLocations],
+                            arguments: [codeLens.uri, codeLens.range.start, nonBlackBoxedLocations],
                         });
                     } else {
                         return new CodeLens(new vscode.Range(codeLens.range.start.line, codeLens.range.start.character, codeLens.range.start.line, 90000), {
