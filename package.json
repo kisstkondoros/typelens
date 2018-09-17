@@ -1,105 +1,105 @@
 {
-	"name": "typelens",
-	"displayName": "TypeLens",
-	"icon": "logo.png",
-	"description": "Shows references to TypeScript methods in the form of codelens",
-	"version": "1.5.0",
-	"publisher": "kisstkondoros",
-	"author": "Tamas Kiss",
-	"license": "MIT",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/kisstkondoros/typelens.git"
-	},
-	"engines": {
-		"vscode": "^1.16.0"
-	},
-	"keywords": [
-		"references",
-		"typescript",
-		"javascript",
-		"scss",
-		"less"
-	],
-	"categories": [
-		"Other"
-	],
-	"activationEvents": [
-		"*"
-	],
-	"main": "./out/src/extension",
-	"scripts": {
-		"vscode:prepublish": "tsc -p ./",
-		"compile": "tsc -watch -p ./",
-		"postinstall": "node ./node_modules/vscode/bin/install"
-	},
-	"contributes": {
-		"commands": [
-			{
-				"command": "typelens.toggle",
-				"title": "Toggle TypeLens"
-			}
-		],
-		"configuration": {
-			"type": "object",
-			"title": "TypeLens configuration",
-			"properties": {
-				"typelens.excludeself": {
-					"default": true,
-					"description": "A flag which indicates whether the initiating reference should be excluded",
-					"type": "boolean"
-				},
-				"typelens.blackbox": {
-					"description": "Array of glob patterns for blackboxed resources",
-					"type": "array",
-					"default": []
-				},
-				"typelens.decorateunused": {
-					"default": true,
-					"description": "A flag which indicates whether the initiating reference should be decorated if it is unsed",
-					"type": "boolean"
-				},
-				"typelens.skiplanguages": {
-					"default": [
-						"csharp"
-					],
-					"description": "Languages where the references should not be shown",
-					"type": "array"
-				},
-				"typelens.singular": {
-					"default": "{0} reference",
-					"description": "Localization for the singular case",
-					"type": "string"
-				},
-				"typelens.blackboxTitle": {
-					"default": "<< called from blackbox >>",
-					"description": "Localization for the case where the only usages are from blackboxed sources",
-					"type": "string"
-				},
-				"typelens.plural": {
-					"default": "{0} references",
-					"description": "Localization for the plural case",
-					"type": "string"
-				},
-				"typelens.noreferences": {
-					"default": "no references found for {0}",
-					"description": "Localization for the case when there are no references found",
-					"type": "string"
-				},
-				"typelens.unusedcolor": {
-					"default": "#999",
-					"description": "Color for unused references",
-					"type": "string"
-				}
-			}
-		}
-	},
-	"devDependencies": {
-		"vscode": "^1.1.21",
-		"typescript": "^3.0.3",
-		"@types/node": "^7.0.0"
-	},
-	"dependencies": {
-		"minimatch": "^3.0.4"
-	}
+  "name": "typelens",
+  "displayName": "TypeLens",
+  "icon": "logo.png",
+  "description": "Shows references to TypeScript methods in the form of codelens",
+  "version": "1.6.0",
+  "publisher": "kisstkondoros",
+  "author": "Tamas Kiss",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kisstkondoros/typelens.git"
+  },
+  "engines": {
+    "vscode": "^1.16.0"
+  },
+  "keywords": [
+    "references",
+    "typescript",
+    "javascript",
+    "scss",
+    "less"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/src/extension",
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "compile": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "typelens.toggle",
+        "title": "Toggle TypeLens"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "TypeLens configuration",
+      "properties": {
+        "typelens.excludeself": {
+          "default": true,
+          "description": "A flag which indicates whether the initiating reference should be excluded",
+          "type": "boolean"
+        },
+        "typelens.blackbox": {
+          "description": "Array of glob patterns for blackboxed resources",
+          "type": "array",
+          "default": []
+        },
+        "typelens.decorateunused": {
+          "default": true,
+          "description": "A flag which indicates whether the initiating reference should be decorated if it is unsed",
+          "type": "boolean"
+        },
+        "typelens.skiplanguages": {
+          "default": [
+            "csharp"
+          ],
+          "description": "Languages where the references should not be shown",
+          "type": "array"
+        },
+        "typelens.singular": {
+          "default": "{0} reference",
+          "description": "Localization for the singular case",
+          "type": "string"
+        },
+        "typelens.blackboxTitle": {
+          "default": "<< called from blackbox >>",
+          "description": "Localization for the case where the only usages are from blackboxed sources",
+          "type": "string"
+        },
+        "typelens.plural": {
+          "default": "{0} references",
+          "description": "Localization for the plural case",
+          "type": "string"
+        },
+        "typelens.noreferences": {
+          "default": "no references found for {0}",
+          "description": "Localization for the case when there are no references found",
+          "type": "string"
+        },
+        "typelens.unusedcolor": {
+          "default": "#999",
+          "description": "Color for unused references",
+          "type": "string"
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "vscode": "^1.1.21",
+    "typescript": "^3.0.3",
+    "@types/node": "^7.0.0"
+  },
+  "dependencies": {
+    "minimatch": "^3.0.4"
+  }
 }
