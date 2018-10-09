@@ -12,7 +12,7 @@
     "url": "https://github.com/kisstkondoros/typelens.git"
   },
   "engines": {
-    "vscode": "^1.16.0"
+    "vscode": "^1.28.0"
   },
   "keywords": [
     "references",
@@ -95,9 +95,9 @@
     }
   },
   "devDependencies": {
-    "vscode": "^1.1.21",
-    "typescript": "^3.0.3",
-    "@types/node": "^7.0.0"
+    "@types/node": "^7.10.0",
+    "typescript": "^3.1.1",
+    "vscode": "^1.1.21"
   },
   "dependencies": {
     "minimatch": "^3.0.4"
