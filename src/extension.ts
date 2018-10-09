@@ -5,6 +5,7 @@ import {
 	CodeLensProvider,
 	SymbolInformation,
 	SymbolKind,
+	DocumentSymbol,
 	TextDocument,
 	CancellationToken,
 	CodeLens,
@@ -117,6 +118,9 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 			}
 		}
+		isDocumentSymbol(symbol: SymbolInformation | DocumentSymbol): symbol is DocumentSymbol {
+			return (symbol as DocumentSymbol).children != null;
+		}
 		provideCodeLenses(document: TextDocument, token: CancellationToken): CodeLens[] | Thenable<CodeLens[]> {
 			var settings = this.config.settings;
 			this.reinitDecorations();
@@ -125,10 +129,38 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 
 			return commands
-				.executeCommand<SymbolInformation[]>("vscode.executeDocumentSymbolProvider", document.uri)
-				.then(symbolInformations => {
+				.executeCommand<SymbolInformation[] | DocumentSymbol[]>("vscode.executeDocumentSymbolProvider", document.uri)
+				.then(symbols => {
 					var usedPositions = [];
-					return symbolInformations
+					symbols = symbols || [];
+
+					const flattenedSymbols: {
+						kind: SymbolKind,
+						name: string,
+						range: Range
+					}[] = [];
+					const walk = (p: DocumentSymbol) => {
+						(p.children || []).forEach((p) => walk(p as any));
+						flattenedSymbols.push(p);
+					};
+
+					for (let i = 0; i < symbols.length; i++) {
+						const symbol = symbols[i];
+						if (this.isDocumentSymbol(symbol)) {
+							walk(symbol)
+						} else {
+							if (symbol.location) {
+								flattenedSymbols.push({
+									kind: symbol.kind,
+									name: symbol.name,
+									range: symbol.location.range
+								});
+							}
+						}
+					}
+
+
+					return flattenedSymbols
 						.filter(symbolInformation => {
 							var knownInterest: SymbolKind[] = <SymbolKind[]>SymbolKindInterst[document.languageId];
 							if (!knownInterest) {
@@ -138,21 +170,21 @@ export function activate(context: vscode.ExtensionContext) {
 						})
 						.map(symbolInformation => {
 							var index;
-							var lineIndex = symbolInformation.location.range.start.line;
+							var lineIndex = symbolInformation.range.start.line;
 							do {
-								var range = symbolInformation.location.range;
+								var range = symbolInformation.range;
 								var line = document.lineAt(lineIndex);
 								index = line.text.lastIndexOf(symbolInformation.name);
 								if (index > -1) {
 									break;
 								}
 								lineIndex++;
-							} while (lineIndex <= symbolInformation.location.range.end.line);
+							} while (lineIndex <= symbolInformation.range.end.line);
 
 							if (symbolInformation.name == "<function>") {
 								range = null;
 							} else if (index == -1) {
-								var line = document.lineAt(symbolInformation.location.range.start.line);
+								var line = document.lineAt(symbolInformation.range.start.line);
 								index = line.firstNonWhitespaceCharacterIndex;
 								lineIndex = range.start.line;
 								range = new Range(lineIndex, index, lineIndex, 90000);
