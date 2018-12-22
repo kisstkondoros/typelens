@@ -29,8 +29,8 @@ export function activate(context: vscode.ExtensionContext) {
 	const SymbolKindInterst = {
 		scss: cssSymbolKindSet,
 		less: cssSymbolKindSet,
-		ts: standardSymbolKindSet,
-		js: standardSymbolKindSet
+		typescript: standardSymbolKindSet,
+		javascript: standardSymbolKindSet
 	};
 	class TypeLensConfiguration {
 		public blackbox: string[] = [];
