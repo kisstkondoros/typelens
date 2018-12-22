@@ -169,6 +169,7 @@ export function activate(context: vscode.ExtensionContext) {
 							return knownInterest.indexOf(symbolInformation.kind) > -1;
 						})
 						.map(symbolInformation => {
+							if (symbolInformation.name == undefined) return;
 							var index;
 							var lineIndex = symbolInformation.range.start.line;
 							do {
@@ -181,7 +182,8 @@ export function activate(context: vscode.ExtensionContext) {
 								lineIndex++;
 							} while (lineIndex <= symbolInformation.range.end.line);
 
-							if (symbolInformation.name == "<function>") {
+							if (symbolInformation.name == "<function>" ||
+								symbolInformation.name.endsWith(' callback')) {
 								range = null;
 							} else if (index == -1) {
 								var line = document.lineAt(symbolInformation.range.start.line);
