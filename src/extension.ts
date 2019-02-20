@@ -135,19 +135,19 @@ export function activate(context: vscode.ExtensionContext) {
 					symbols = symbols || [];
 
 					const flattenedSymbols: {
-						kind: SymbolKind,
-						name: string,
-						range: Range
+						kind: SymbolKind;
+						name: string;
+						range: Range;
 					}[] = [];
 					const walk = (p: DocumentSymbol) => {
-						(p.children || []).forEach((p) => walk(p as any));
+						(p.children || []).forEach(p => walk(p as any));
 						flattenedSymbols.push(p);
 					};
 
 					for (let i = 0; i < symbols.length; i++) {
 						const symbol = symbols[i];
 						if (this.isDocumentSymbol(symbol)) {
-							walk(symbol)
+							walk(symbol);
 						} else {
 							if (symbol.location) {
 								flattenedSymbols.push({
@@ -159,7 +159,6 @@ export function activate(context: vscode.ExtensionContext) {
 						}
 					}
 
-
 					return flattenedSymbols
 						.filter(symbolInformation => {
 							var knownInterest: SymbolKind[] = <SymbolKind[]>SymbolKindInterst[document.languageId];
@@ -170,34 +169,40 @@ export function activate(context: vscode.ExtensionContext) {
 						})
 						.map(symbolInformation => {
 							if (symbolInformation.name == undefined) return;
-							var index;
-							var lineIndex = symbolInformation.range.start.line;
-							do {
-								var range = symbolInformation.range;
-								var line = document.lineAt(lineIndex);
-								index = line.text.lastIndexOf(symbolInformation.name);
-								if (index > -1) {
-									break;
+							const range = symbolInformation.range;
+							const isUnsupportedSymbol =
+								symbolInformation.name == "<function>" || symbolInformation.name.endsWith(" callback");
+							if (!isUnsupportedSymbol && range) {
+								const symbolText = document.getText(range);
+								let offset = symbolText.indexOf(symbolInformation.name);
+								let resultingRange = range;
+								if (offset > -1) {
+									const documentOffset = document.offsetAt(
+										new vscode.Position(resultingRange.start.line, resultingRange.start.character)
+									);
+									while (offset < symbolText.length) {
+										var lookupOffset = documentOffset + offset;
+										const start = document.positionAt(lookupOffset);
+										resultingRange = document.getWordRangeAtPosition(start);
+										if (document.getText(resultingRange) == symbolInformation.name) {
+											break;
+										} else {
+											offset += symbolInformation.name.length;
+										}
+									}
 								}
-								lineIndex++;
-							} while (lineIndex <= symbolInformation.range.end.line);
 
-							if (symbolInformation.name == "<function>" ||
-								symbolInformation.name.endsWith(' callback')) {
-								range = null;
-							} else if (index == -1) {
-								var line = document.lineAt(symbolInformation.range.start.line);
-								index = line.firstNonWhitespaceCharacterIndex;
-								lineIndex = range.start.line;
-								range = new Range(lineIndex, index, lineIndex, 90000);
-							} else {
-								range = new Range(lineIndex, index, lineIndex, index + symbolInformation.name.length);
-							}
-							if (range) {
-								var position = document.offsetAt(range.start);
+								if (!resultingRange) {
+									var line = document.lineAt(symbolInformation.range.start.line);
+									var index = line.firstNonWhitespaceCharacterIndex;
+									var lineIndex = resultingRange.start.line;
+									resultingRange = new Range(lineIndex, index, lineIndex, 90000);
+								}
+
+								var position = document.offsetAt(resultingRange.start);
 								if (!usedPositions[position]) {
 									usedPositions[position] = 1;
-									return new MethodReferenceLens(new vscode.Range(range.start, range.end), document.uri);
+									return new MethodReferenceLens(resultingRange, document.uri);
 								}
 							}
 						})
