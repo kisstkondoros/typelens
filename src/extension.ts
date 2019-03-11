@@ -73,11 +73,8 @@ export function activate(context: vscode.ExtensionContext) {
 	}
 
 	class MethodReferenceLens extends CodeLens {
-		uri: vscode.Uri;
-
-		constructor(range: Range, uri: vscode.Uri, command?: Command) {
+		constructor(range: Range, public uri: vscode.Uri, public name: string, command?: Command) {
 			super(range, command);
-			this.uri = uri;
 		}
 	}
 
@@ -202,7 +199,7 @@ export function activate(context: vscode.ExtensionContext) {
 								var position = document.offsetAt(resultingRange.start);
 								if (!usedPositions[position]) {
 									usedPositions[position] = 1;
-									return new MethodReferenceLens(resultingRange, document.uri);
+									return new MethodReferenceLens(resultingRange, document.uri, symbolInformation.name);
 								}
 							}
 						})
@@ -233,8 +230,7 @@ export function activate(context: vscode.ExtensionContext) {
 						var amount = nonBlackBoxedLocations.length;
 						if (amount == 0) {
 							message = settings.noreferences;
-							var name = isSameDocument ? vscode.window.activeTextEditor.document.getText(codeLens.range) : "";
-							message = message.replace("{0}", name + "");
+							message = message.replace("{0}", codeLens.name + "");
 						} else if (amount == 1) {
 							message = settings.singular;
 							message = message.replace("{0}", amount + "");
