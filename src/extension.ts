@@ -171,30 +171,52 @@ export function activate(context: vscode.ExtensionContext) {
 								symbolInformation.name == "<function>" || symbolInformation.name.endsWith(" callback");
 							if (!isUnsupportedSymbol && range) {
 								const symbolText = document.getText(range);
-								let offset = symbolText.indexOf(symbolInformation.name);
-								let resultingRange = range;
-								if (offset > -1) {
-									const documentOffset = document.offsetAt(
-										new vscode.Position(resultingRange.start.line, resultingRange.start.character)
-									);
-									while (offset < symbolText.length) {
-										var lookupOffset = documentOffset + offset;
+								const documentOffset = document.offsetAt(range.start);
+
+								let leftMatch: Range;
+								let rightMatch: Range;
+
+								if (symbolText.indexOf(symbolInformation.name) > -1) {
+									const maxOffset = documentOffset + symbolText.length;
+									let lookupOffset = documentOffset;
+									while (lookupOffset < maxOffset) {
 										const start = document.positionAt(lookupOffset);
-										resultingRange = document.getWordRangeAtPosition(start);
-										if (document.getText(resultingRange) == symbolInformation.name) {
+										const wordRange = document.getWordRangeAtPosition(start);
+										if (wordRange && document.getText(wordRange) == symbolInformation.name) {
+											rightMatch = wordRange;
 											break;
 										} else {
-											offset += symbolInformation.name.length;
+											lookupOffset += symbolInformation.name.length;
+										}
+									}
+								} else {
+									const minOffset = Math.max(documentOffset - symbolText.length, 0);
+									let lookupOffset = documentOffset;
+									while (lookupOffset > minOffset) {
+										const start = document.positionAt(lookupOffset);
+										const wordRange = document.getWordRangeAtPosition(start);
+										if (wordRange && document.getText(wordRange) == symbolInformation.name) {
+											leftMatch = wordRange;
+											break;
+										} else {
+											lookupOffset -= symbolInformation.name.length;
 										}
 									}
 								}
-
-								if (!resultingRange) {
-									var line = document.lineAt(symbolInformation.range.start.line);
-									var index = line.firstNonWhitespaceCharacterIndex;
-									var lineIndex = resultingRange.start.line;
-									resultingRange = new Range(lineIndex, index, lineIndex, 90000);
-								}
+								let resultingRange;
+								if (leftMatch == null && rightMatch == null) {
+									resultingRange = range;
+								} else
+									if (leftMatch != null && rightMatch == null) {
+										resultingRange = leftMatch;
+									} else if (leftMatch == null && rightMatch != null) {
+										resultingRange = rightMatch;
+									} else {
+										resultingRange =
+											documentOffset - document.offsetAt(leftMatch.start) < document.offsetAt(rightMatch.start) - documentOffset
+												? leftMatch
+												: rightMatch;
+									}
 
 								var position = document.offsetAt(resultingRange.start);
 								if (!usedPositions[position]) {
