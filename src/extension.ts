@@ -42,6 +42,13 @@ export function activate(context: vscode.ExtensionContext) {
 		public unusedcolor: string = "#999";
 		public decorateunused: boolean = true;
 		public skiplanguages: string[] = ["csharp"];
+		public ignorelist: string[] = ["ngOnChanges", "ngOnInit", "ngDoCheck", "ngAfterContentInit", "ngAfterContentChecked", "ngAfterViewInit", "ngAfterViewChecked", "ngOnDestroy"];
+
+		public showReferencesForMethods = true;
+		public showReferencesForFunctions = true;
+		public showReferencesForProperties = true;
+		public showReferencesForClasses = true;
+		public showReferencesForInterfaces = true;
 	}
 
 	class AppConfiguration {
@@ -162,13 +169,25 @@ export function activate(context: vscode.ExtensionContext) {
 							if (!knownInterest) {
 								knownInterest = standardSymbolKindSet;
 							}
-							return knownInterest.indexOf(symbolInformation.kind) > -1;
+
+							const isKnownInterest = knownInterest.indexOf(symbolInformation.kind) > -1;
+							if (!isKnownInterest) return;
+
+							const isSymbolKindAllowed =
+								symbolInformation.kind === SymbolKind.Method && this.config.settings.showReferencesForMethods ||
+								symbolInformation.kind === SymbolKind.Function && this.config.settings.showReferencesForFunctions ||
+								symbolInformation.kind === SymbolKind.Property && this.config.settings.showReferencesForProperties ||
+								symbolInformation.kind === SymbolKind.Class && this.config.settings.showReferencesForClasses ||
+								symbolInformation.kind === SymbolKind.Interface && this.config.settings.showReferencesForInterfaces;
+							return isSymbolKindAllowed;
 						})
 						.map(symbolInformation => {
 							if (symbolInformation.name == undefined) return;
 							const range = symbolInformation.range;
 							const isUnsupportedSymbol =
-								symbolInformation.name == "<function>" || symbolInformation.name.endsWith(" callback");
+								symbolInformation.name == "<function>" || symbolInformation.name.endsWith(" callback") ||
+								this.config.settings.ignorelist.indexOf(symbolInformation.name) > -1;
+
 							if (!isUnsupportedSymbol && range) {
 								const symbolText = document.getText(range);
 								const documentOffset = document.offsetAt(range.start);

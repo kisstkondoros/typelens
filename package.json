@@ -90,6 +90,45 @@
           "default": "#999",
           "description": "Color for unused references",
           "type": "string"
+        },
+        "typelens.ignorelist": {
+          "default": [
+            "ngOnChanges",
+            "ngOnInit",
+            "ngDoCheck",
+            "ngAfterContentInit",
+            "ngAfterContentChecked",
+            "ngAfterViewInit",
+            "ngAfterViewChecked",
+            "ngOnDestroy"
+          ],
+          "description": "Symbol names to be ignored",
+          "type": "array"
+        },
+        "typelens.showReferencesForMethods": {
+          "default": true,
+          "type": "boolean",
+          "description": "A flag which indicates whether to show references for methods"
+        },
+        "typelens.showReferencesForFunctions": {
+          "default": true,
+          "type": "boolean",
+          "description": "A flag which indicates whether to show references for functions"
+        },
+        "typelens.showReferencesForProperties": {
+          "default": true,
+          "type": "boolean",
+          "description": "A flag which indicates whether to show references for properties"
+        },
+        "typelens.showReferencesForClasses": {
+          "default": true,
+          "type": "boolean",
+          "description": "A flag which indicates whether to show references for classes"
+        },
+        "typelens.showReferencesForInterfaces": {
+          "default": true,
+          "type": "boolean",
+          "description": "A flag which indicates whether to show references for interfaces"
         }
       }
     }
