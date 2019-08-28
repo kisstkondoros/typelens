@@ -257,7 +257,12 @@ export function activate(context: vscode.ExtensionContext) {
 						var settings = this.config.settings;
 						var filteredLocations = locations;
 						if (settings.excludeself) {
-							filteredLocations = locations.filter(location => !location.range.isEqual(codeLens.range));
+							filteredLocations = locations.filter(location => {
+								const isSameDocument = codeLens.uri.toString() == location.uri.toString();
+								const isLocationOverlaps = codeLens.range.contains(location.range);
+								const overlapsWithOriginalSymbol = isSameDocument && isLocationOverlaps;
+								return !overlapsWithOriginalSymbol;
+							});
 						}
 
 						const blackboxList = this.config.settings.blackbox || [];
