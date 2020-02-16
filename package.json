@@ -62,7 +62,8 @@
         },
         "typelens.skiplanguages": {
           "default": [
-            "csharp"
+            "csharp",
+            "jsonc"
           ],
           "description": "Languages where the references should not be shown",
           "type": "array"

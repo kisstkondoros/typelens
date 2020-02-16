@@ -41,7 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
 		public noreferences: string = "no references found for {0}";
 		public unusedcolor: string = "#999";
 		public decorateunused: boolean = true;
-		public skiplanguages: string[] = ["csharp"];
+		public skiplanguages: string[] = ["csharp", "jsonc"];
 		public ignorelist: string[] = ["ngOnChanges", "ngOnInit", "ngDoCheck", "ngAfterContentInit", "ngAfterContentChecked", "ngAfterViewInit", "ngAfterViewChecked", "ngOnDestroy"];
 
 		public showReferencesForMethods = true;
