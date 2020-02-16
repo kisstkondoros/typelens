@@ -3,7 +3,7 @@
   "displayName": "TypeLens",
   "icon": "logo.png",
   "description": "Shows references to TypeScript methods in the form of codelens",
-  "version": "1.9.3",
+  "version": "1.9.4",
   "publisher": "kisstkondoros",
   "author": "Tamas Kiss",
   "license": "MIT",
