@@ -136,13 +136,13 @@
     }
   },
   "devDependencies": {
-    "@types/node": "^12.12.14",
-    "@types/vscode": "^1.40.0",
-    "ts-loader": "^6.2.1",
+    "@types/node": "^14.0.6",
+    "@types/vscode": "^1.45.1",
+    "ts-loader": "^7.0.5",
     "tsconfig-paths": "^3.9.0",
-    "typescript": "^3.7.3",
-    "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.10"
+    "typescript": "^3.9.3",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
   },
   "dependencies": {
     "minimatch": "^3.0.4"
