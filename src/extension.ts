@@ -186,6 +186,7 @@ export function activate(context: vscode.ExtensionContext) {
 							const range = symbolInformation.range;
 							const isUnsupportedSymbol =
 								symbolInformation.name.indexOf('.') > -1 ||
+								symbolInformation.name == "<unknown>" ||
 								symbolInformation.name == "<function>" ||
 								symbolInformation.name.endsWith(" callback") ||
 								this.config.settings.ignorelist.indexOf(symbolInformation.name) > -1;
