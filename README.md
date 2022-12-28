@@ -7,10 +7,13 @@ politely for Symbol and Reference providers. This extension picks up references 
 properly I can't do anything about it (probably).
 
 ## It looks like this:
+
 ![Example code with references code lens](https://raw.githubusercontent.com/kisstkondoros/typelens/master/screenshot.png)
 
 ## Configuration properties
 
+- typelens.exclude
+  - Array of patterns (in glob format) to exclude
 - typelens.blackboxTitle
   - Localization for the case where the only usages are from blackboxed sources
 - typelens.blackbox

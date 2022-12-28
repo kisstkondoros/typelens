@@ -38,6 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
     javascript: standardSymbolKindSet,
   };
   class TypeLensConfiguration {
+    public exclude: string[] = [];
     public blackbox: string[] = [];
     public blackboxTitle: string = "<< called from blackbox >>";
     public excludeself: boolean = true;
@@ -155,12 +156,23 @@ export function activate(context: vscode.ExtensionContext) {
     ): symbol is DocumentSymbol {
       return (symbol as DocumentSymbol).children != null;
     }
+
+    private isExcluded(fileName: string) {
+      const exclusionList = this.config.settings.exclude || [];
+      return exclusionList.some((pattern) => {
+        return new Minimatch(pattern).match(fileName);
+      });
+    }
+
     provideCodeLenses(
       document: TextDocument,
       token: CancellationToken
     ): CodeLens[] | Thenable<CodeLens[]> {
       var settings = this.config.settings;
       this.reinitDecorations();
+      if (this.isExcluded(document.uri.fsPath)) {
+        return [];
+      }
       if (
         !this.config.typeLensEnabled ||
         settings.skiplanguages.indexOf(document.languageId) > -1

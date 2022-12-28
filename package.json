@@ -45,6 +45,12 @@
       "type": "object",
       "title": "TypeLens configuration",
       "properties": {
+        "typelens.exclude": {
+          "scope": "resource",
+          "description": "Array of patterns (in glob format) to exclude",
+          "type": "array",
+          "default": []
+        },
         "typelens.excludeself": {
           "default": true,
           "description": "A flag which indicates whether the initiating reference should be excluded",
