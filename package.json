@@ -39,6 +39,10 @@
       {
         "command": "typelens.toggle",
         "title": "Toggle TypeLens"
+      },
+      {
+        "command": "typelens.log",
+        "title": "Show references into an output log"
       }
     ],
     "configuration": {
@@ -137,6 +141,21 @@
           "default": true,
           "type": "boolean",
           "description": "A flag which indicates whether to show references for interfaces"
+        },
+        "typelens.showReferencesForEnums": {
+          "default": true,
+          "type": "boolean",
+          "description": "A flag which indicates whether to show references for enums"
+        },
+        "typelens.showReferencesForConstants": {
+          "default": true,
+          "type": "boolean",
+          "description": "A flag which indicates whether to show references for constants"
+        },
+        "typelens.showReferencesForVariables": {
+          "default": true,
+          "type": "boolean",
+          "description": "A flag which indicates whether to show references for variables"
         }
       }
     }
